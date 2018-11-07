@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://www.hibernate.org/dtd/hibernate-configuration.dtd">
+<hibernate-configuration>
+	<session-factory>
+		<!-- 配置hibernate的基本属性：
+			1、数据源需要配置到IOC容器中，此处无需配置。
+			2、关联的映射文件.hbm.xml 也在IOC容器的SessionFactory实例时配置
+			3、需要配置的属性：方言，SQL显示及格式化，生成数据表的策略以及二级缓存等。 -->
+			
+		<!-- oracle方言：OracleDialect，进入源码，找到推荐用的Oracle8iDialect。-->
+		<property name="hibernate.dialect">org.hibernate.dialect.Oracle8iDialect</property>
+		<!-- 显示执行的sql语句 -->
+		<property name="hibernate.show_sql">true</property>
+		<!-- sql语句格式化 -->
+		<property name="hibernate.format_sql">true</property>
+		<!-- ddl策略：自动生成数据表 -->
+		<property name="hibernate.hbm2ddl.auto">update</property>
+	</session-factory>
+	
+</hibernate-configuration>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://www.hibernate.org/dtd/hibernate-mapping.dtd">
+<hibernate-mapping package="com.ccg.springhibernate.entities">
+	<class name="Book" table="SH_BOOK">
+		<id name="id" type="java.lang.Integer">
+			<column name="ID"></column>
+			<generator class="native"></generator>
+		</id>
+		<property name="bookName" type="java.lang.String">
+			<column name="BOOK_NAME"></column>
+		</property>
+		<property name="isbn" type="java.lang.String">
+			<column name="ISBN"></column>
+		</property>
+		<property name="price" type="int">
+			<column name="PRICE"></column>
+		</property>
+		<property name="stock" type="int">
+			<column name="STOCK"></column>
+		</property>
+	</class>
+</hibernate-mapping>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+    
+    <!-- 配置自动扫描的包 -->
+    <context:component-scan base-package="com.ccg.springhibernate.dao"></context:component-scan>
+	<context:component-scan base-package="com.ccg.springhibernate.service"></context:component-scan>
+    
+    
+    <!-- 1、导入资源文件 -->
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+	
+ 	<!-- 2、配置数据源dataSource -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+    	<property name="driverClassName" value="${oracle.driverClassName}" />
+		<property name="url" value="${oracle.url}" />
+		<property name="username" value="${oracle.username}" />
+		<property name="password" value="${oracle.password}" />
+    </bean>
+    
+    <!-- 3、配置Hibernate的SessionFactory实例 ,通过spring提供的LocalSessionFactoryBean进行配置。
+    		3.1配置数据源;
+    		3.2配置Hibernate原生的配置属性hibernate.cfg.xml（可以改成用bean的属性实现）
+    		3.3配置映射文件.hbm.xml文件
+    	-->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>    	
+		<!-- 配置原生属性方式一：hibernate.cfg.xml -->
+		<!-- <property name="configLocation" value="classpath:hibernate.cfg.xml"></property> -->
+		<!-- 配置原生属性方式二：使用hibernateProperties属性配置。
+			  可以舍弃方式一的xml文件,但是推荐第一种，xml文件中有提示输入 -->
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.Oracle8iDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+		<property name="mappingLocations" value="classpath:com/ccg/springhibernate/entities/*.hbm.xml"></property>    
+    </bean>
+    
+    <!-- 4、配置Spring的声明式事务-->
+    <!-- 4.1配置事务管理器，是spring+hibernate的管理器：HibernateTransactionManager -->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+    	<property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>
+    <!-- 4.2配置事务属性 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+    	<tx:attributes>
+    		<tx:method name="purchase" propagation="REQUIRES_NEW"/>
+    		<tx:method name="checkout" propagation="REQUIRED"/>
+    		<tx:method name="get*" read-only="true" propagation="REQUIRED"/>
+    		<tx:method name="find*" read-only="true" propagation="REQUIRED"/>
+    		<!-- <tx:method name="*"/> -->
+    	</tx:attributes>
+    </tx:advice>
+   	<!-- 4.3创建事务切点，关联切点和事务。一般在service层设切点切入事务 -->
+    <aop:config>
+    	<aop:pointcut expression="execution(* com.ccg.springhibernate.service.*.*(..))" id="txPointCut"/>
+    	<aop:advisor advice-ref="txAdvice" pointcut-ref="txPointCut"/>
+    </aop:config>
+    
+</beans>
